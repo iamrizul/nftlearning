@@ -9,6 +9,8 @@ contract MyToken is ERC721, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    uint256 public Mintrate = 1 ether;
+    uint public max_supply=1;
 
     constructor() ERC721("MyToken", "MTK") {}
 
@@ -16,7 +18,9 @@ contract MyToken is ERC721, ERC721Enumerable, Ownable {
         return "https://api.mynft.com/tokens/";
     }
 
-    function safeMint(address to) public onlyOwner {
+    function safeMint(address to) public payable {
+        require(totalSupply() < max_supply,"can't mint more.");
+        require(msg.value >= Mintrate,"Not enough Ether sent.");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -39,4 +43,16 @@ contract MyToken is ERC721, ERC721Enumerable, Ownable {
     {
         return super.supportsInterface(interfaceId);
     }
+    function withdraw() public onlyOwner{
+        require(address(this).balance > 0,"Balance is zero.");
+        payable(owner()).transfer(address(this).balance);
+
+
+
+    }
+
+
+
 }
+
+
